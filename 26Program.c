@@ -1,88 +1,58 @@
+// Online C compiler to run C program online
 #include <stdio.h>
 #include <stdlib.h>
 
-// Node structure for linked list
-typedef struct Node {
+struct Node{
     int data;
-    struct Node* next;
-} Node;
+    struct Node *next;
+};
 
-// Function to create a new node
-Node* createNode(int data) {
-    Node* newNode = (Node*)malloc(sizeof(Node));
-    newNode->data = data;
-    newNode->next = NULL;
-    return newNode;
+void printArray(int arr[],int n){
+    for(int i=0;i<n;i++){
+        printf("%d  ",arr[i]);
+    }
 }
 
-// Function to insert a node into a sorted linked list
-void sortedInsert(Node** head, int data) {
-    Node* newNode = createNode(data);
-    Node* current;
-
-    if (*head == NULL || (*head)->data >= data) {
+void insertSort(struct Node **head,int arr){
+    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+    newNode->data = arr;
+    newNode->next = NULL;
+    
+    if(*head == NULL || (*head)->data >= arr){
         newNode->next = *head;
         *head = newNode;
-    } else {
-        current = *head;
-        while (current->next != NULL && current->next->data < data) {
-            current = current->next;
+    }else{
+        struct Node *temp = *head;
+        while(temp->next != NULL && temp->next->data < arr){
+            temp = temp->next;
         }
-        newNode->next = current->next;
-        current->next = newNode;
+        
+        newNode->next = temp->next;
+        temp->next = newNode;
     }
 }
 
-// Function to free the linked list
-void freeList(Node* head) {
-    Node* temp;
-    while (head != NULL) {
-        temp = head;
-        head = head->next;
-        free(temp);
+
+void addressSort(int arr[],int n){
+    struct Node *bucket[10] = {NULL};
+    for(int i=0;i<n;i++){
+        int digit = arr[i]/10;
+        insertSort(&bucket[digit],arr[i]);
     }
-}
-
-// Address Calculation Sort Function
-void addressCalculationSort(int arr[], int n) {
-    // Create an array of buckets (linked lists)
-    Node* buckets[10] = {NULL};
-
-    // Place elements into buckets based on hash function
-    for (int i = 0; i < n; i++) {
-        int bucketIndex = arr[i] % 10; // Hash function
-        sortedInsert(&buckets[bucketIndex], arr[i]);
-    }
-
-    // Collect sorted elements from buckets
-    int index = 0;
-    for (int i = 0; i < 10; i++) {
-        Node* current = buckets[i];
-        while (current != NULL) {
-            arr[index++] = current->data;
-            current = current->next;
+    int index = -1;
+    for(int i=0;i<10;i++){
+        struct Node *temp = bucket[i];
+        while(temp != NULL){
+            arr[++index] = temp->data;
+            temp = temp->next;
         }
-        // Free memory of bucket
-        freeList(buckets[i]);
     }
 }
 
-// Main function to test the program
 int main() {
-    int arr[] = {29, 25, 3, 49, 9, 37, 21, 43};
-    int n = sizeof(arr) / sizeof(arr[0]);
-
-    printf("Original array:\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d ", arr[i]);
-    }
-
-    addressCalculationSort(arr, n);
-
-    printf("\nSorted array:\n");
-    for (int i = 0; i < n; i++) {
-        printf("%d ", arr[i]);
-    }
-
+    int arr[] = {50,25,90,14,55,36,77,88,41,51,61};
+    int size = sizeof(arr)/sizeof(arr[0]);
+    addressSort(arr,size);
+    printArray(arr,size);
     return 0;
 }
